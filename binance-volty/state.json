@@ -1,0 +1,90 @@
+{
+  "position": "long",
+  "entry_price": 103929.0,
+  "quantity": 1,
+  "realized_pnl": 519.1000000000349,
+  "trades": [
+    {
+      "time": "2025-06-01 17:48:15",
+      "type": "SELL (SHORT ENTRY)",
+      "price": 104180.1
+    },
+    {
+      "time": "2025-06-01 17:49:58",
+      "type": "BUY (SHORT EXIT)",
+      "price": 104139.9,
+      "pnl": 40.20000000001164
+    },
+    {
+      "time": "2025-06-01 17:49:58",
+      "type": "BUY (LONG ENTRY)",
+      "price": 104139.9
+    },
+    {
+      "time": "2025-06-01 17:51:15",
+      "type": "SELL (LONG EXIT)",
+      "price": 104134.0,
+      "pnl": -5.899999999994179
+    },
+    {
+      "time": "2025-06-01 17:51:15",
+      "type": "SELL (SHORT ENTRY)",
+      "price": 104134.0
+    },
+    {
+      "time": "2025-06-01 17:59:32",
+      "type": "BUY (SHORT EXIT)",
+      "price": 104020.0,
+      "pnl": 114.0
+    },
+    {
+      "time": "2025-06-01 17:59:32",
+      "type": "BUY (LONG ENTRY)",
+      "price": 104020.0
+    },
+    {
+      "time": "2025-06-01 18:01:37",
+      "type": "SELL (LONG EXIT)",
+      "price": 104035.8,
+      "pnl": 15.80000000000291
+    },
+    {
+      "time": "2025-06-01 18:01:37",
+      "type": "SELL (SHORT ENTRY)",
+      "price": 104035.8
+    },
+    {
+      "time": "2025-06-01 18:08:05",
+      "type": "BUY (SHORT EXIT)",
+      "price": 103822.0,
+      "pnl": 213.8000000000029
+    },
+    {
+      "time": "2025-06-01 18:08:05",
+      "type": "BUY (LONG ENTRY)",
+      "price": 103822.0
+    },
+    {
+      "time": "2025-06-01 18:23:47",
+      "type": "SELL (LONG EXIT)",
+      "price": 103946.1,
+      "pnl": 124.10000000000582
+    },
+    {
+      "time": "2025-06-01 18:23:47",
+      "type": "SELL (SHORT ENTRY)",
+      "price": 103946.1
+    },
+    {
+      "time": "2025-06-01 18:25:24",
+      "type": "BUY (SHORT EXIT)",
+      "price": 103929.0,
+      "pnl": 17.10000000000582
+    },
+    {
+      "time": "2025-06-01 18:25:24",
+      "type": "BUY (LONG ENTRY)",
+      "price": 103929.0
+    }
+  ]
+}
