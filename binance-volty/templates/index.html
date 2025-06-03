@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" x-data="tradingDashboard()" x-init="init()">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trading Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+    }
+    .flash {
+      transition: color 0.3s ease, background-color 0.3s ease;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    .flash-green {
+      background-color: #d1fae5;
+      color: #059669;
+    }
+    .flash-red {
+      background-color: #fee2e2;
+      color: #dc2626;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans">
+
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-center mb-8" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; letter-spacing: 5px; font-weight: lighter;">Trading Dashboard</h1>
+
+    <!-- Tab Navigation -->
+    <div class="flex border-b mb-6 space-x-4">
+      <button @click="activeTab = 'status'" :class="tabClass('status')" class="pb-2">Status</button>
+      <button @click="activeTab = 'trades'" :class="tabClass('trades')" class="pb-2">Trades</button>
+    </div>
+
+    <!-- Status Tab -->
+    <div x-show="activeTab === 'status'">
+      <div class="grid md:grid-cols-2 gap-6 mb-6">
+        <template x-for="(label, key) in fields" :key="key">
+          <div class="bg-white p-4 rounded-lg shadow-lg">
+            <h2 class="text-sm text-gray-500 uppercase font-semibold" x-text="label"></h2>
+            <div
+              class="text-xl font-bold mt-2 flash"
+              :class="highlightClasses[key]"
+              x-text="statusData[key]"
+            ></div>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- Trades Tab -->
+    <div x-show="activeTab === 'trades'">
+      <div class="bg-white p-4 rounded-lg shadow-lg mt-4">
+        <h2 class="text-lg font-bold mb-3">Trades</h2>
+        <template x-if="tradePairs.length === 0">
+          <p class="text-sm text-gray-400">No trades yet.</p>
+        </template>
+        <template x-for="(pair, i) in tradePairs" :key="i">
+          <div class="flex justify-between py-2 border-b text-sm">
+            <div>
+                <span x-text="pair.entry.type"></span> →
+              <span x-text="pair.exit?.type || 'Open'"></span>
+              <span class="text-gray-400 ml-2" x-text="pair.entry.time"></span>
+            </div>
+            <div>
+              <template x-if="pair.exit">
+                <span :class="pair.exit.pnl >= 0 ? 'text-green-600' : 'text-red-600'" x-text="(pair.exit.pnl >= 0 ? '+' : '') + pair.exit.pnl.toFixed(2)"></span>
+              </template>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function tradingDashboard() {
+      return {
+        activeTab: 'status',
+        fields: {
+          symbol: 'Symbol',
+          current_price: 'Current Price',
+          position: 'Position',
+          entry_price: 'Entry Price',
+          unrealized_pnl: 'Unrealized P&L',
+          realized_pnl: 'Realized P&L'
+        },
+        statusData: {
+          symbol: '',
+          current_price: '',
+          position: '',
+          entry_price: '',
+          unrealized_pnl: '',
+          realized_pnl: ''
+        },
+        highlightClasses: {
+          symbol: '',
+          current_price: '',
+          position: '',
+          entry_price: '',
+          unrealized_pnl: '',
+          realized_pnl: ''
+        },
+        trades: [],
+        tradePairs: [],
+        init() {
+          this.fetchStatus();
+          setInterval(() => this.fetchStatus(), 2000);
+        },
+        tabClass(tab) {
+          return this.activeTab === tab
+            ? 'border-b-2 border-blue-500 text-blue-600 font-semibold'
+            : 'text-gray-500 hover:text-blue-500';
+        },
+        fetchStatus() {
+          fetch("/status")
+            .then(res => res.json())
+            .then(data => {
+              const updated = {
+                symbol: data.symbol,
+                current_price: data.current_price.toFixed(2),
+                position: data.position || '',
+                entry_price: data.entry_price.toFixed(2),
+                unrealized_pnl: data.unrealized_pnl.toFixed(2),
+                realized_pnl: data.realized_pnl.toFixed(2)
+              };
+
+              for (let key in updated) {
+                const prev = this.statusData[key];
+                const newVal = updated[key];
+
+                if (prev !== newVal) {
+                  const oldNum = parseFloat(prev);
+                  const newNum = parseFloat(newVal);
+                  const isPositive = newNum >= 0;
+
+                  if (!isNaN(oldNum) && !isNaN(newNum)) {
+                    this.highlightClasses[key] = newNum > oldNum ? 'flash-green' : 'flash-red';
+                  } else {
+                    this.highlightClasses[key] = '';
+                  }
+
+                  setTimeout(() => {
+                    this.highlightClasses[key] = (['realized_pnl', 'unrealized_pnl'].includes(key))
+                      ? (parseFloat(newVal) >= 0 ? 'text-green-600' : 'text-red-600')
+                      : '';
+                  }, 500);
+                }
+
+                this.statusData[key] = newVal;
+              }
+
+              this.trades = data.trades;
+              this.groupTrades();
+            });
+        },
+        groupTrades() {
+          const pairs = [];
+          let i = 0;
+          while (i < this.trades.length) {
+            const entry = this.trades[i];
+            let exit = null;
+            if (i + 1 < this.trades.length && this.trades[i + 1].pnl !== undefined) {
+              exit = this.trades[i + 1];
+              i += 2;
+            } else {
+              i += 1;
+            }
+            pairs.push({ entry, exit });
+          }
+          this.tradePairs = pairs.reverse();
+        }
+      }
+    }
+  </script>
+</body>
+</html>
